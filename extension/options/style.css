@@ -6,4 +6,7 @@ input { width: 100%; padding: 11px; border: 1px solid #c9c3b8; border-radius: 8p
 .actions { display: flex; gap: 10px; margin-top: 12px; }
 button { padding: 9px 16px; border: 0; border-radius: 8px; color: white; background: #385b4a; font: 650 14px system-ui; cursor: pointer; }
 button.secondary { color: #24231f; background: #eae7e0; }
+h2 { margin: 30px 0 8px; font-size: 17px; }
+.toggle-label { display: flex; align-items: center; gap: 9px; margin: 0; font-weight: 400; }
+.toggle-label input { width: 17px; height: 17px; }
 #status { min-height: 23px; color: #385b4a; }

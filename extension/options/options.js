@@ -1,8 +1,15 @@
 const input = document.querySelector("#apiKey");
 const status = document.querySelector("#status");
+const darkMode = document.querySelector("#darkMode");
 
-chrome.storage.local.get("openaiApiKey", ({ openaiApiKey }) => {
+chrome.storage.local.get(["openaiApiKey", "darkMode"], ({ openaiApiKey, darkMode: enabled }) => {
   input.value = openaiApiKey || "";
+  darkMode.checked = Boolean(enabled);
+});
+
+darkMode.addEventListener("change", async () => {
+  await chrome.storage.local.set({ darkMode: darkMode.checked });
+  status.textContent = `Dark mode ${darkMode.checked ? "enabled" : "disabled"}.`;
 });
 
 document.querySelector("#save").addEventListener("click", async () => {
