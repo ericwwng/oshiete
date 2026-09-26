@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Oshiete</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header><h1>Oshiete</h1><p>Japanese grammar, made understandable.</p><a href="../options/index.html" target="_blank">Settings</a></header>
+    <main>
+      <label for="selection">Selected text</label>
+      <textarea id="selection" rows="4" placeholder="Highlight Japanese text on a page, then press Ctrl+Shift+Y."></textarea>
+      <button id="analyze">Analyze</button>
+      <p id="status" role="status"></p>
+      <section id="result" aria-live="polite"></section>
+    </main>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
