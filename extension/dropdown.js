@@ -24,7 +24,7 @@
       *{box-sizing:border-box} .panel{width:min(390px,calc(100vw - 24px));max-height:min(70vh,600px);display:flex;flex-direction:column;overflow:hidden;border:1px solid #d8d3c9;border-radius:12px;background:#fbfaf7;color:#24231f;box-shadow:0 12px 40px #0004;font:14px/1.5 system-ui,sans-serif}
       header{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:#f0ece3;border-bottom:1px solid #ded8cb} h1{margin:0;font-size:17px} .close{border:0;background:none;font-size:22px;cursor:pointer;color:inherit}
       main{padding:14px;overflow:auto} textarea{width:100%;resize:vertical;border:1px solid #c9c3b8;border-radius:7px;padding:9px;font:inherit} button.run{width:100%;margin-top:8px;padding:9px;border:0;border-radius:7px;background:#385b4a;color:white;font:600 14px system-ui;cursor:pointer}.run:disabled{opacity:.6}
-      #status{margin:8px 0;color:#69645b}.result h2{margin:18px 0 5px;font-size:15px}.result .card{margin:8px 0;padding:10px;border:1px solid #e1ddd5;border-radius:8px;background:white}.jp{font-size:17px;font-weight:650} ul{padding-left:19px} li{margin:6px 0}.reading{color:#69645b}.grammar{margin-top:8px;padding:7px;border-left:3px solid #688b72;background:#f2f5f1}
+      #status{margin:8px 0;color:#69645b}.result h2{margin:18px 0 5px;font-size:15px}.result .card{margin:8px 0;padding:10px;border:1px solid #e1ddd5;border-radius:8px;background:white}.jp{font-size:17px;font-weight:650} ul{padding-left:19px} li{margin:6px 0}.reading{color:#69645b}.grammar{margin-top:8px;padding:7px;border-left:3px solid #688b72;background:#f2f5f1}.learner-note{border-color:#b77939;background:#fbf3e8}
       @media(prefers-color-scheme:dark){.panel{background:#1d211f;color:#eeeae2;border-color:#444c47}header{background:#292f2b;border-color:#444c47}textarea,.result .card{background:#292e2b;color:#eeeae2;border-color:#444c47}.grammar{background:#333b35;border-color:#82ad8c}}
     </style>
     <section class="panel"><header><h1>教えて · Oshiete</h1><button class="close" aria-label="Close">×</button></header>
@@ -65,12 +65,12 @@
           addText(grammar, "div", point.meaning);
           if (point.example) addText(grammar, "div", point.example, "reading");
         });
+        (piece.pitfalls || []).forEach((note) => {
+          const warning = card.appendChild(document.createElement("div"));
+          warning.className = "grammar learner-note";
+          addText(warning, "span", `Learner note: ${note}`);
+        });
       });
-    }
-    if (data.pitfalls?.length) {
-      addText(result, "h2", "Watch out");
-      const list = result.appendChild(document.createElement("ul"));
-      data.pitfalls.forEach((item) => addText(list, "li", item));
     }
   }
 

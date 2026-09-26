@@ -38,10 +38,9 @@ const analysisSchema = {
   type: "object", additionalProperties: false,
   properties: {
     original: { type: "string" }, reading: { type: "string" }, translation: { type: "string" },
-    pieces: { type: "array", items: { type: "object", properties: { text: { type: "string" }, reading: { type: "string" }, role: { type: "string" }, explanation: { type: "string" }, grammarPoints: { type: "array", items: { type: "object", properties: { pattern: { type: "string" }, meaning: { type: "string" }, example: { type: "string" } }, required: ["pattern", "meaning", "example"], additionalProperties: false } } }, required: ["text", "reading", "role", "explanation", "grammarPoints"], additionalProperties: false } },
-    vocabulary: { type: "array", items: { type: "object", properties: { word: { type: "string" }, reading: { type: "string" }, meaning: { type: "string" } }, required: ["word", "reading", "meaning"], additionalProperties: false } },
-    pitfalls: { type: "array", items: { type: "string" } }
-  }, required: ["original", "reading", "translation", "pieces", "vocabulary", "pitfalls"],
+    pieces: { type: "array", items: { type: "object", properties: { text: { type: "string" }, reading: { type: "string" }, role: { type: "string" }, explanation: { type: "string" }, grammarPoints: { type: "array", items: { type: "object", properties: { pattern: { type: "string" }, meaning: { type: "string" }, example: { type: "string" } }, required: ["pattern", "meaning", "example"], additionalProperties: false } }, pitfalls: { type: "array", items: { type: "string" } } }, required: ["text", "reading", "role", "explanation", "grammarPoints", "pitfalls"], additionalProperties: false } },
+    vocabulary: { type: "array", items: { type: "object", properties: { word: { type: "string" }, reading: { type: "string" }, meaning: { type: "string" } }, required: ["word", "reading", "meaning"], additionalProperties: false } }
+  }, required: ["original", "reading", "translation", "pieces", "vocabulary"],
   additionalProperties: false
 };
 
@@ -58,7 +57,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           model: "gpt-4o-mini",
           messages: [
             { role: "system", content: "You are a patient Japanese grammar tutor for English-speaking learners. Prioritize grammar over vocabulary: explain sentence structure, particles, clauses, and conjugations. Keep vocabulary minimal and only explain words needed for grammar. Note ambiguity rather than guessing." },
-            { role: "user", content: `Explain the grammar in this Japanese text. Break it into meaningful grammatical chunks, explain each chunk's role, and attach any recognizable common grammar pattern to the specific chunk it applies to, including the pattern's meaning and a short example. Do not provide a separate global grammar list. Include reading, translation, and learner pitfalls; keep vocabulary minimal.\n\n${message.text}` }
+            { role: "user", content: `Explain the grammar in this Japanese text. Break it into meaningful grammatical chunks, explain each chunk's role, and attach any recognizable common grammar pattern to the specific chunk it applies to, including the pattern's meaning and a short example. Do not provide separate global grammar or warning lists. Put each relevant grammar pattern and any learner warning directly on the chunk it applies to; omit generic warnings. Include reading and translation, and keep vocabulary minimal.\n\n${message.text}` }
           ],
           response_format: { type: "json_schema", json_schema: { name: "japanese_analysis", strict: true, schema: analysisSchema } }
         })
