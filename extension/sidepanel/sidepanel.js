@@ -10,7 +10,7 @@ const analysisSchema = {
   additionalProperties: false,
   properties: {
     original: { type: "string" }, reading: { type: "string" }, translation: { type: "string" },
-    pieces: { type: "array", items: { type: "object", properties: { text: { type: "string" }, reading: { type: "string" }, role: { type: "string" }, explanation: { type: "string" } }, required: ["text", "role", "explanation"], additionalProperties: false } },
+    pieces: { type: "array", items: { type: "object", properties: { text: { type: "string" }, reading: { type: "string" }, role: { type: "string" }, explanation: { type: "string" } }, required: ["text", "reading", "role", "explanation"], additionalProperties: false } },
     grammarPoints: { type: "array", items: { type: "object", properties: { pattern: { type: "string" }, meaning: { type: "string" }, example: { type: "string" } }, required: ["pattern", "meaning", "example"], additionalProperties: false } },
     vocabulary: { type: "array", items: { type: "object", properties: { word: { type: "string" }, reading: { type: "string" }, meaning: { type: "string" } }, required: ["word", "reading", "meaning"], additionalProperties: false } },
     pitfalls: { type: "array", items: { type: "string" } }
