@@ -3,15 +3,24 @@
   "name": "Oshiete — Japanese Grammar Helper",
   "version": "0.1.0",
   "description": "Understand Japanese text with an AI-powered grammatical breakdown.",
-  "permissions": ["storage", "sidePanel"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["activeTab", "scripting", "storage", "sidePanel"],
   "host_permissions": ["https://api.openai.com/*"],
   "background": { "service_worker": "background.js", "type": "module" },
   "side_panel": { "default_path": "sidepanel/index.html" },
   "options_ui": { "page": "options/index.html", "open_in_tab": true },
   "commands": {
     "analyze-japanese-selection": {
-      "suggested_key": { "default": "Ctrl+Shift+Y", "mac": "Command+Shift+Y" },
+      "suggested_key": { "default": "Ctrl+Shift+U", "mac": "Command+Shift+U" },
       "description": "Toggle the Oshiete side panel"
+    },
+    "toggle-analysis-dropdown": {
+      "suggested_key": { "default": "Ctrl+Shift+Y", "mac": "Command+Shift+Y" },
+      "description": "Toggle the floating Oshiete dropdown"
     }
   }
 }

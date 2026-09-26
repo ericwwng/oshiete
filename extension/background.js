@@ -1,5 +1,11 @@
 chrome.commands.onCommand.addListener((command, tab) => {
-  if (command !== "analyze-japanese-selection" || !tab?.id) return;
+  if (!tab?.id) return;
+  if (command === "toggle-analysis-dropdown") {
+    chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["dropdown.js"] })
+      .catch((error) => console.error("Could not toggle analysis dropdown:", error));
+    return;
+  }
+  if (command !== "analyze-japanese-selection") return;
   const tabId = tab.id;
   const stateKey = `sidePanelOpen:${tabId}`;
 
@@ -26,4 +32,46 @@ chrome.commands.onCommand.addListener((command, tab) => {
       console.error("Could not toggle side panel:", error);
     }
   })();
+});
+
+const analysisSchema = {
+  type: "object", additionalProperties: false,
+  properties: {
+    original: { type: "string" }, reading: { type: "string" }, translation: { type: "string" },
+    pieces: { type: "array", items: { type: "object", properties: { text: { type: "string" }, reading: { type: "string" }, role: { type: "string" }, explanation: { type: "string" } }, required: ["text", "reading", "role", "explanation"], additionalProperties: false } },
+    grammarPoints: { type: "array", items: { type: "object", properties: { pattern: { type: "string" }, meaning: { type: "string" }, example: { type: "string" } }, required: ["pattern", "meaning", "example"], additionalProperties: false } },
+    vocabulary: { type: "array", items: { type: "object", properties: { word: { type: "string" }, reading: { type: "string" }, meaning: { type: "string" } }, required: ["word", "reading", "meaning"], additionalProperties: false } },
+    pitfalls: { type: "array", items: { type: "string" } }
+  }, required: ["original", "reading", "translation", "pieces", "grammarPoints", "vocabulary", "pitfalls"],
+  additionalProperties: false
+};
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type !== "OSHIETE_ANALYZE") return;
+  (async () => {
+    try {
+      const { openaiApiKey } = await chrome.storage.local.get("openaiApiKey");
+      if (!openaiApiKey) throw new Error("Add your OpenAI API key in extension Settings first.");
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${openaiApiKey}` },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: "You are a patient Japanese grammar tutor for English-speaking learners. Prioritize grammar over vocabulary: explain sentence structure, particles, clauses, and conjugations. Keep vocabulary minimal and only explain words needed for grammar. Note ambiguity rather than guessing." },
+            { role: "user", content: `Explain the grammar in this Japanese text: ${message.text}` }
+          ],
+          response_format: { type: "json_schema", json_schema: { name: "japanese_analysis", strict: true, schema: analysisSchema } }
+        })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error?.message || `OpenAI request failed (${response.status})`);
+      const content = payload.choices?.[0]?.message?.content;
+      if (!content) throw new Error("The model returned an empty response.");
+      sendResponse({ data: JSON.parse(content) });
+    } catch (error) {
+      sendResponse({ error: error.message || "Analysis failed." });
+    }
+  })();
+  return true;
 });
