@@ -1,4 +1,5 @@
 (() => {
+  const selectedText = window.getSelection()?.toString().trim() || "";
   const existing = document.getElementById("oshiete-dropdown-host");
   if (existing) { existing.remove(); return; }
 
@@ -59,7 +60,7 @@
     }
   }
 
-  run.addEventListener("click", async () => {
+  async function analyze() {
     const text = textarea.value.trim();
     if (!text) { status.textContent = "Paste Japanese text to analyze."; return; }
     run.disabled = true;
@@ -72,5 +73,10 @@
       status.textContent = "";
     } catch (error) { status.textContent = error.message; }
     finally { run.disabled = false; }
-  });
+  }
+  run.addEventListener("click", analyze);
+  if (selectedText) {
+    textarea.value = selectedText;
+    analyze();
+  }
 })();
