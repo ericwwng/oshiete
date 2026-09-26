@@ -1,15 +1,27 @@
 (() => {
-  const selectedText = window.getSelection()?.toString().trim() || "";
+  const selection = window.getSelection();
+  const selectedText = selection?.toString().trim() || "";
+  const selectionRect = selectedText && selection.rangeCount ? selection.getRangeAt(0).getBoundingClientRect() : null;
   const existing = document.getElementById("oshiete-dropdown-host");
   if (existing) { existing.remove(); return; }
 
+  const width = 390;
+  const margin = 12;
+  let left = selectionRect ? selectionRect.left : window.innerWidth - width - 16;
+  let top = selectionRect ? selectionRect.bottom + 8 : margin;
+  if (left + width > window.innerWidth - margin) left = window.innerWidth - width - margin;
+  left = Math.max(margin, left);
+  if (selectionRect && top + Math.min(480, window.innerHeight * 0.7) > window.innerHeight - margin) {
+    top = Math.max(margin, selectionRect.top - Math.min(480, window.innerHeight * 0.7) - 8);
+  }
+
   const host = document.createElement("div");
   host.id = "oshiete-dropdown-host";
-  host.style.cssText = "all:initial; position:fixed; top:12px; right:16px; z-index:2147483647;";
+  host.style.cssText = `all:initial; position:fixed; left:${left}px; top:${top}px; z-index:2147483000;`;
   const shadow = host.attachShadow({ mode: "open" });
   shadow.innerHTML = `
     <style>
-      *{box-sizing:border-box} .panel{width:390px;max-height:calc(100vh - 24px);display:flex;flex-direction:column;overflow:hidden;border:1px solid #d8d3c9;border-radius:12px;background:#fbfaf7;color:#24231f;box-shadow:0 12px 40px #0004;font:14px/1.5 system-ui,sans-serif}
+      *{box-sizing:border-box} .panel{width:min(390px,calc(100vw - 24px));max-height:min(70vh,600px);display:flex;flex-direction:column;overflow:hidden;border:1px solid #d8d3c9;border-radius:12px;background:#fbfaf7;color:#24231f;box-shadow:0 12px 40px #0004;font:14px/1.5 system-ui,sans-serif}
       header{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:#f0ece3;border-bottom:1px solid #ded8cb} h1{margin:0;font-size:17px} .close{border:0;background:none;font-size:22px;cursor:pointer;color:inherit}
       main{padding:14px;overflow:auto} textarea{width:100%;resize:vertical;border:1px solid #c9c3b8;border-radius:7px;padding:9px;font:inherit} button.run{width:100%;margin-top:8px;padding:9px;border:0;border-radius:7px;background:#385b4a;color:white;font:600 14px system-ui;cursor:pointer}.run:disabled{opacity:.6}
       #status{margin:8px 0;color:#69645b}.result h2{margin:18px 0 5px;font-size:15px}.result .card{margin:8px 0;padding:10px;border:1px solid #e1ddd5;border-radius:8px;background:white}.jp{font-size:17px;font-weight:650} ul{padding-left:19px} li{margin:6px 0}.reading{color:#69645b}
