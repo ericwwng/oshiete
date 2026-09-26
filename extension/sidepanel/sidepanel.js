@@ -2,8 +2,22 @@ const selection = document.querySelector("#selection");
 const button = document.querySelector("#analyze");
 const status = document.querySelector("#status");
 const result = document.querySelector("#result");
-const API_URL = "http://localhost:8787/analyze";
+const API_URL = "https://api.openai.com/v1/chat/completions";
 let latestSelectionId;
+
+const analysisSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    original: { type: "string" }, reading: { type: "string" }, translation: { type: "string" },
+    pieces: { type: "array", items: { type: "object", properties: { text: { type: "string" }, reading: { type: "string" }, role: { type: "string" }, explanation: { type: "string" } }, required: ["text", "role", "explanation"], additionalProperties: false } },
+    grammarPoints: { type: "array", items: { type: "object", properties: { pattern: { type: "string" }, meaning: { type: "string" }, example: { type: "string" } }, required: ["pattern", "meaning", "example"], additionalProperties: false } },
+    vocabulary: { type: "array", items: { type: "object", properties: { word: { type: "string" }, reading: { type: "string" }, meaning: { type: "string" } }, required: ["word", "reading", "meaning"], additionalProperties: false } },
+    pitfalls: { type: "array", items: { type: "string" } }
+  },
+  required: ["original", "reading", "translation", "pieces", "grammarPoints", "vocabulary", "pitfalls"],
+  additionalProperties: false
+};
 
 function escapeHtml(value = "") {
   return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -36,15 +50,25 @@ async function analyze() {
   status.textContent = "Analyzing…";
   try {
     const response = await fetch(API_URL, {
-      method: "POST", headers: { "Content-Type": "application/json", "X-OpenAI-API-Key": openaiApiKey },
-      body: JSON.stringify({ text })
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${openaiApiKey}` },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "You are a patient Japanese grammar tutor. Explain Japanese for an English-speaking learner. Be precise about particles, phrase roles, and conjugation; note ambiguity rather than guessing." },
+          { role: "user", content: `Analyze the text below. Give its kana reading, natural English translation, phrase-by-phrase breakdown with each phrase's role and explanation, grammar patterns with examples, vocabulary, and common learner pitfalls. Keep the explanation clear and concise.\n\n${text}` }
+        ],
+        response_format: { type: "json_schema", json_schema: { name: "japanese_analysis", strict: true, schema: analysisSchema } }
+      })
     });
     const body = await response.json();
-    if (!response.ok) throw new Error(body.error || `Request failed (${response.status})`);
-    render(body);
+    if (!response.ok) throw new Error(body.error?.message || `Request failed (${response.status})`);
+    const content = body.choices?.[0]?.message?.content;
+    if (!content) throw new Error("The model returned an empty response.");
+    render(JSON.parse(content));
     status.textContent = "";
   } catch (error) {
-    status.textContent = `${error.message}. Is the local analysis server running?`;
+    status.textContent = `${error.message}. Check your API key and connection.`;
   } finally { button.disabled = false; }
 }
 

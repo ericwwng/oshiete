@@ -2,26 +2,16 @@
 
 Chrome Extension for breaking down Japanese sentences with an AI-powered grammar tutor.
 
-## Run locally
+## Install and run
 
-Requirements: Chrome and Node.js 18+.
+Requirements: Chrome.
 
-1. Start the analysis backend:
+1. Open `chrome://extensions` and enable **Developer mode**.
+2. Choose **Load unpacked** and select this repository's `extension/` directory.
+3. Open the extension's **Details → Extension options** (or click **Settings** in the side panel) and paste your OpenAI API key.
+4. Select Japanese text on a webpage and press **Ctrl+Shift+Y** (macOS: **Command+Shift+Y**). The side panel opens and starts analysis. You can also edit the text and use **Analyze**.
 
-   ```sh
-   node server/server.js
-   ```
-
-   Optional configuration: `PORT` (default `8787`), `LLM_MODEL` (default `gpt-4o-mini`), `LLM_API_URL` (default OpenAI chat completions URL), and `MAX_TEXT_LENGTH` (default `2000`). `LLM_API_URL` should be a compatible chat-completions endpoint supporting JSON Schema response format.
-
-2. Load the extension in Chrome:
-   - Open `chrome://extensions`.
-   - Enable **Developer mode**.
-   - Choose **Load unpacked** and select this repository's `extension/` directory.
-3. Open the extension's **Details → Extension options** (or use the **Settings** link in the side panel) and paste your OpenAI API key.
-4. Open a webpage containing Japanese, select text, and press **Ctrl+Shift+Y** (macOS: **Command+Shift+Y**). The side panel opens and starts analysis. You can also edit the text and use **Analyze**.
-
-Change the shortcut at `chrome://extensions/shortcuts`. The key is stored locally in Chrome extension storage, not synced, and sent to the local backend with each analysis request. The extension does not retain analysis history. Selected text is also sent to the configured language-model provider.
+The extension calls OpenAI's Chat Completions API directly; no separate server is needed. The default model is `gpt-4o-mini`. The key is stored locally in Chrome extension storage, is not synced, and is sent directly to OpenAI with each request. The extension does not retain analysis history. Your selected text is sent to OpenAI for analysis. Because the key is available to the extension, use this setup for your own trusted browser profile rather than distributing it as a public extension.
 
 ## Project files
 

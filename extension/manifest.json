@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Understand Japanese text with an AI-powered grammatical breakdown.",
   "permissions": ["activeTab", "scripting", "storage", "sidePanel"],
-  "host_permissions": ["http://localhost:8787/*"],
+  "host_permissions": ["https://api.openai.com/*"],
   "background": { "service_worker": "background.js", "type": "module" },
   "side_panel": { "default_path": "sidepanel/index.html" },
   "options_ui": { "page": "options/index.html", "open_in_tab": true },
