@@ -8,12 +8,11 @@ const analysisSchema = {
   additionalProperties: false,
   properties: {
     original: { type: "string" }, reading: { type: "string" }, translation: { type: "string" },
-    pieces: { type: "array", items: { type: "object", properties: { text: { type: "string" }, reading: { type: "string" }, role: { type: "string" }, explanation: { type: "string" } }, required: ["text", "reading", "role", "explanation"], additionalProperties: false } },
-    grammarPoints: { type: "array", items: { type: "object", properties: { pattern: { type: "string" }, meaning: { type: "string" }, example: { type: "string" } }, required: ["pattern", "meaning", "example"], additionalProperties: false } },
+    pieces: { type: "array", items: { type: "object", properties: { text: { type: "string" }, reading: { type: "string" }, role: { type: "string" }, explanation: { type: "string" }, grammarPoints: { type: "array", items: { type: "object", properties: { pattern: { type: "string" }, meaning: { type: "string" }, example: { type: "string" } }, required: ["pattern", "meaning", "example"], additionalProperties: false } } }, required: ["text", "reading", "role", "explanation", "grammarPoints"], additionalProperties: false } },
     vocabulary: { type: "array", items: { type: "object", properties: { word: { type: "string" }, reading: { type: "string" }, meaning: { type: "string" } }, required: ["word", "reading", "meaning"], additionalProperties: false } },
     pitfalls: { type: "array", items: { type: "string" } }
   },
-  required: ["original", "reading", "translation", "pieces", "grammarPoints", "vocabulary", "pitfalls"],
+  required: ["original", "reading", "translation", "pieces", "vocabulary", "pitfalls"],
   additionalProperties: false
 };
 
@@ -25,11 +24,10 @@ function render(data) {
   const pieces = (data.pieces || []).map((piece) => `
     <article class="card"><div class="jp">${escapeHtml(piece.text)}</div>
       ${piece.reading ? `<div class="muted">${escapeHtml(piece.reading)}</div>` : ""}
-      <strong>${escapeHtml(piece.role || "")}</strong><div>${escapeHtml(piece.explanation || "")}</div></article>`).join("");
-  const grammar = (data.grammarPoints || []).map((point) => `<li><strong>${escapeHtml(point.pattern)}</strong> — ${escapeHtml(point.meaning)}${point.example ? `<br><span class="muted">${escapeHtml(point.example)}</span>` : ""}</li>`).join("");
+      <strong>${escapeHtml(piece.role || "")}</strong><div>${escapeHtml(piece.explanation || "")}</div>
+      ${(piece.grammarPoints || []).map((point) => `<div class="grammar-inline"><strong>Grammar: ${escapeHtml(point.pattern)}</strong><div>${escapeHtml(point.meaning)}</div>${point.example ? `<div class="muted">${escapeHtml(point.example)}</div>` : ""}</div>`).join("")}</article>`).join("");
   const vocab = (data.vocabulary || []).map((word) => `<li><strong>${escapeHtml(word.word || word.text)}</strong>${word.reading ? ` (${escapeHtml(word.reading)})` : ""} — ${escapeHtml(word.meaning || word.definition || "")}</li>`).join("");
   result.innerHTML = `<div class="card"><div class="jp">${escapeHtml(data.original || "")}</div><div>${escapeHtml(data.reading || "")}</div><p>${escapeHtml(data.translation || "")}</p></div>
-    ${grammar ? `<h2>Grammar points</h2><ul>${grammar}</ul>` : ""}
     ${pieces ? `<h2>How the sentence fits together</h2>${pieces}` : ""}
     ${vocab ? `<details class="vocabulary"><summary>Key vocabulary</summary><ul>${vocab}</ul></details>` : ""}
     ${data.pitfalls?.length ? `<h2>Watch out</h2><ul>${data.pitfalls.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}`;
@@ -54,7 +52,7 @@ async function analyze() {
         model: "gpt-4o-mini",
         messages: [
           { role: "system", content: "You are a patient Japanese grammar tutor for English-speaking learners. Prioritize grammar over vocabulary: explain sentence structure, particles, how clauses connect, and verb/adjective conjugations in useful detail. Explain vocabulary only when a word is essential to understanding a grammar point; do not produce a general word list. Note ambiguity rather than guessing." },
-          { role: "user", content: `Analyze the Japanese text below as a grammar lesson. Give its kana reading and natural English translation. Identify the important grammar patterns and explain how they work in this sentence, then break the text into grammatical chunks explaining each chunk's role. Include common learner pitfalls. Keep vocabulary minimal and only include words needed to clarify grammar.\n\n${text}` }
+          { role: "user", content: `Analyze the Japanese text below as a grammar lesson. Give its kana reading and natural English translation, then break it into meaningful grammatical chunks. For each chunk, explain its role and attach any recognizable common grammar pattern that applies specifically to that chunk, with its meaning and a short example. Do not list grammar points separately from their chunk. Include common learner pitfalls. Keep vocabulary minimal and only include words needed to clarify grammar.\n\n${text}` }
         ],
         response_format: { type: "json_schema", json_schema: { name: "japanese_analysis", strict: true, schema: analysisSchema } }
       })

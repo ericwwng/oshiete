@@ -15,6 +15,10 @@ h2 { margin: 20px 0 8px; font-size: 17px; } h3 { margin: 0 0 4px; font-size: 15p
 .jp { font-size: 18px; font-weight: 650; } .muted { color: #69645b; }
 ul { padding-left: 20px; } li { margin: 7px 0; }
 .vocabulary { margin-top: 18px; color: #69645b; } .vocabulary summary { cursor: pointer; font-weight: 600; }
+.grammar-inline { margin-top: 10px; padding: 9px; border-left: 3px solid #688b72; border-radius: 0 6px 6px 0; background: #f2f5f1; }
+.grammar-inline > strong { color: #385b4a; }
+body.dark .grammar-inline { background: #333b35; border-color: #82ad8c; }
+body.dark .grammar-inline > strong { color: #b5d9bd; }
 body.dark { color: #eeeae2; background: #1d211f; }
 body.dark header { background: #292f2b; border-color: #3d4640; }
 body.dark h1 span, body.dark header a { color: #a8d0b5; }
